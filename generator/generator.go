@@ -44,9 +44,6 @@ func New(paramsMap map[string]string) (*TypeScriptGRPCGatewayGenerator, error) {
 	}
 
 	tmplPath, ok := paramsMap["template"]
-	if !ok {
-		tmplPath = "gateway-ts.go.tpl"
-	}
 
 	return &TypeScriptGRPCGatewayGenerator{
 		Registry:           registry,

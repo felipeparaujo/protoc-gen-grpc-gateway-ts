@@ -18,9 +18,18 @@ import (
 	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/registry"
 )
 
+//go:embed static/gateway-ts.go.tpl
+var tsTmpl string
+
 // GetTemplate gets the templates to for the typescript file
 func GetTemplate(r *registry.Registry, tmplPath string) *template.Template {
-	t := template.New(path.Base(tmplPath))
+	var t *template.Template
+	if tmplPath == "" {
+		t = template.New("file")
+	} else {
+		t = template.New(path.Base(tmplPath))
+	}
+
 	t = t.Funcs(sprig.TxtFuncMap())
 
 	t = t.Funcs(template.FuncMap{
@@ -37,7 +46,11 @@ func GetTemplate(r *registry.Registry, tmplPath string) *template.Template {
 		},
 	})
 
-	return template.Must(t.ParseFiles(tmplPath))
+	if tmplPath == "" {
+		return template.Must(t.Parse(tsTmpl))
+	} else {
+		return template.Must(t.ParseFiles(tmplPath))
+	}
 }
 
 func jsonFieldName(r *registry.Registry) func(name data.Field) string {
