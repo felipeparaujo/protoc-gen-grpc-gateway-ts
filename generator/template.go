@@ -2,9 +2,9 @@ package generator
 
 import (
 	"bytes"
+	"embed"
 	"fmt"
 	"net/url"
-	"path"
 	"regexp"
 	"strings"
 	"text/template"
@@ -14,21 +14,16 @@ import (
 	"github.com/Masterminds/sprig"
 	"github.com/iancoleman/strcase"
 
-	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/data"
-	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/registry"
+	"github.com/felipeparaujo/protoc-gen-grpc-gateway-ts/data"
+	"github.com/felipeparaujo/protoc-gen-grpc-gateway-ts/registry"
 )
 
-//go:embed static/gateway-ts.go.tpl
-var tsTmpl string
+//go:embed *.tpl
+var TmplsFS embed.FS
 
 // GetTemplate gets the templates to for the typescript file
-func GetTemplate(r *registry.Registry, tmplPath string) *template.Template {
-	var t *template.Template
-	if tmplPath == "" {
-		t = template.New("file")
-	} else {
-		t = template.New(path.Base(tmplPath))
-	}
+func GetTemplate(r *registry.Registry) *template.Template {
+	t := template.New("file")
 
 	t = t.Funcs(sprig.TxtFuncMap())
 
@@ -46,11 +41,23 @@ func GetTemplate(r *registry.Registry, tmplPath string) *template.Template {
 		},
 	})
 
-	if tmplPath == "" {
-		return template.Must(t.Parse(tsTmpl))
-	} else {
-		return template.Must(t.ParseFiles(tmplPath))
+	data, err := TmplsFS.ReadFile("gateway-ts.go.tpl")
+	if err != nil {
+		panic(err)
 	}
+
+	return template.Must(t.Parse(string(data)))
+}
+
+func GetFetchModuleTemplate() *template.Template {
+	t := template.New("fetch")
+
+	data, err := TmplsFS.ReadFile("fetch.go.tpl")
+	if err != nil {
+		panic(err)
+	}
+
+	return template.Must(t.Parse(string(data)))
 }
 
 func jsonFieldName(r *registry.Registry) func(name data.Field) string {

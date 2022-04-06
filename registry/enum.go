@@ -3,7 +3,7 @@ package registry
 import (
 	"google.golang.org/protobuf/types/descriptorpb"
 
-	"github.com/grpc-ecosystem/protoc-gen-grpc-gateway-ts/data"
+	"github.com/felipeparaujo/protoc-gen-grpc-gateway-ts/data"
 )
 
 const (
