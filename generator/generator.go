@@ -60,7 +60,6 @@ func (t *TypeScriptGRPCGatewayGenerator) Generate(req *plugin.CodeGeneratorReque
 	tmpl := GetTemplate(t.Registry)
 	log.Debugf("files to generate %v", req.GetFileToGenerate())
 
-	needToGenerateFetchModule := false
 	// feed fileData into rendering process
 	for _, fileData := range filesData {
 		fileData.EnableStylingCheck = t.EnableStylingCheck
@@ -75,20 +74,17 @@ func (t *TypeScriptGRPCGatewayGenerator) Generate(req *plugin.CodeGeneratorReque
 			return nil, errors.Wrap(err, "error generating file")
 		}
 		resp.File = append(resp.File, generated)
-		needToGenerateFetchModule = needToGenerateFetchModule || fileData.Services.NeedsFetchModule()
 	}
 
-	if needToGenerateFetchModule {
-		// generate fetch module
-		fetchTmpl := GetFetchModuleTemplate()
-		log.Debugf("generate fetch template")
-		generatedFetch, err := t.generateFetchModule(fetchTmpl)
-		if err != nil {
-			return nil, errors.Wrap(err, "error generating fetch module")
-		}
-
-		resp.File = append(resp.File, generatedFetch)
+	// generate fetch module
+	fetchTmpl := GetFetchModuleTemplate()
+	log.Debugf("generate fetch template")
+	generatedFetch, err := t.generateFetchModule(fetchTmpl)
+	if err != nil {
+		return nil, errors.Wrap(err, "error generating fetch module")
 	}
+
+	resp.File = append(resp.File, generatedFetch)
 
 	return resp, nil
 }

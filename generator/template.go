@@ -23,7 +23,7 @@ var TmplsFS embed.FS
 
 // GetTemplate gets the templates to for the typescript file
 func GetTemplate(r *registry.Registry) *template.Template {
-	t := template.New("file")
+	t := template.New("client")
 
 	t = t.Funcs(sprig.TxtFuncMap())
 
@@ -41,7 +41,7 @@ func GetTemplate(r *registry.Registry) *template.Template {
 		},
 	})
 
-	data, err := TmplsFS.ReadFile("gateway-ts.go.tpl")
+	data, err := TmplsFS.ReadFile("client.go.tpl")
 	if err != nil {
 		panic(err)
 	}
