@@ -113,7 +113,7 @@ func renderURL(r *registry.Registry) func(method data.Method) string {
 			}
 		}
 		hasPartialBody := !shouldSerializeFullRequestBody(&method) && method.HTTPMethod != "GET"
-		if hasPartialBody {
+		if hasPartialBody && *method.HTTPRequestBody != "" {
 			fieldsInPath = append(fieldsInPath, renderFieldInPath(*method.HTTPRequestBody, fieldNameFn))
 		}
 		urlPathParams := fmt.Sprintf("[%s]", strings.Join(fieldsInPath, ", "))
