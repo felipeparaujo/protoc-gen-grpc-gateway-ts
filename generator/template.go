@@ -112,9 +112,13 @@ func renderURL(r *registry.Registry) func(method data.Method) string {
 				fieldsInPath = append(fieldsInPath, renderFieldInPath(cleanedFieldName, fieldNameFn))
 			}
 		}
+		hasPartialBody := shouldSerializeFullRequestBody(&method) && method.HTTPMethod != "GET"
+		if hasPartialBody {
+			fieldsInPath = append(fieldsInPath, renderFieldInPath(*method.HTTPRequestBody, fieldNameFn))
+		}
 		urlPathParams := fmt.Sprintf("[%s]", strings.Join(fieldsInPath, ", "))
 
-		if !method.ClientStreaming && method.HTTPMethod == "GET" {
+		if !method.ClientStreaming && (method.HTTPMethod == "GET" || hasPartialBody) {
 			// parse the url to check for query string
 			parsedURL, err := url.Parse(methodURL)
 			if err != nil {
@@ -138,13 +142,17 @@ func buildInitReq(method data.Method) string {
 	httpMethod := method.HTTPMethod
 	m := `method: "` + httpMethod + `"`
 	fields := []string{m}
-	if method.HTTPRequestBody == nil || *method.HTTPRequestBody == "*" {
+	if shouldSerializeFullRequestBody(&method) {
 		fields = append(fields, "body: JSON.stringify(req, fm.replacer)")
 	} else if *method.HTTPRequestBody != "" {
 		field := fmt.Sprintf("body: JSON.stringify(%s, fm.replacer)", renderIndexRequestField(*method.HTTPRequestBody, strcase.ToLowerCamel))
 		fields = append(fields, field)
 	}
 	return strings.Join(fields, ", ")
+}
+
+func shouldSerializeFullRequestBody(method *data.Method) bool {
+	return method.HTTPRequestBody == nil || *method.HTTPRequestBody == "*"
 }
 
 // include is the include template functions copied from
