@@ -112,7 +112,7 @@ func renderURL(r *registry.Registry) func(method data.Method) string {
 				fieldsInPath = append(fieldsInPath, renderFieldInPath(cleanedFieldName, fieldNameFn))
 			}
 		}
-		hasPartialBody := shouldSerializeFullRequestBody(&method) && method.HTTPMethod != "GET"
+		hasPartialBody := !shouldSerializeFullRequestBody(&method) && method.HTTPMethod != "GET"
 		if hasPartialBody {
 			fieldsInPath = append(fieldsInPath, renderFieldInPath(*method.HTTPRequestBody, fieldNameFn))
 		}
