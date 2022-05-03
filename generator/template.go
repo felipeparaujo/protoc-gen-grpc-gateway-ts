@@ -216,7 +216,7 @@ func mapWellKnownType(protoType string) string {
 	case ".google.protobuf.NullValue":
 		return "null"
 	case ".google.protobuf.FieldMask":
-		return "string[]"
+		return "string"
 	case ".google.protobuf.Any":
 		return "unknown"
 	case ".google.protobuf.Empty":
